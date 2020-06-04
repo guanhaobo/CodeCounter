@@ -94,7 +94,7 @@ int getLineNum(string path)
 /* 判断是否是目标扩展名 */
 bool isTarget(string path)
 {
-    if (type.size() == 0)
+    if (type.size() == 0 || allType)
         return true;
     string name = path.substr(path.find_last_of(".") + 1);
     transform(name.begin(), name.end(), name.begin(), ::tolower);
@@ -119,10 +119,10 @@ void run1(int argc, char **argv)
             continue;
         num = getLineNum(files[i]);
         ans += num;
-        cout << files[i] << "\t行数：" << num << endl;
+        cout << files[i] << "\tLines:" << num << endl;
     }
     cout << endl
-         << "总行数：" << ans << endl;
+         << "Total:" << ans << endl;
 }
 
 /* 只输出结果 */
@@ -147,7 +147,7 @@ void run2(int argc, char **argv)
         num = getLineNum(files[i]);
         ans += num;
     }
-    cout << ans;
+    cout << ans << endl;
 }
 
 /* 主函数 */
