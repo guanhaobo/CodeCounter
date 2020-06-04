@@ -25,11 +25,10 @@ bool allType = false;
 /* 功能获取路径path下所有的文件路径（包括子文件夹里的），存储在files中 */
 void getFiles(string path, vector<string> &files)
 {
-
+    string p;
 #ifdef WIN32
     long hFile = 0;
     struct _finddata_t fileinfo;
-    string p;
     if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
     {
         do
@@ -50,7 +49,6 @@ void getFiles(string path, vector<string> &files)
     DIR *dir;
     struct dirent *ptr;
     char base[1000];
-
     if ((dir = opendir(path.c_str())) == NULL)
     {
         perror("Open dir error...");
@@ -59,16 +57,18 @@ void getFiles(string path, vector<string> &files)
 
     while ((ptr = readdir(dir)) != NULL)
     {
-        if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0)
+        if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) ///current dir OR parrent dir
             continue;
-        else if (ptr->d_type == 8)
-            files.push_back(ptr->d_name);
-        else if (ptr->d_type == 10)
-            continue;
-        else if (ptr->d_type == 4)
+        else if (ptr->d_type == 4) ///dir
         {
-            files.push_back(ptr->d_name);
+            memset(base, '\0', sizeof(base));
+            strcpy(base, path.c_str());
+            strcat(base, "/");
+            strcat(base, ptr->d_name);
+            getFiles(base, files);
         }
+        else
+            files.push_back(p.assign(path).append("/").append(ptr->d_name));
     }
     closedir(dir);
 #endif
