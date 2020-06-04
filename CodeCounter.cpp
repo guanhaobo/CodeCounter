@@ -5,7 +5,13 @@
 *   链接：https://github.com/ghb123/CodeCounter
 **************************************************/
 #include <bits/stdc++.h>
+#ifdef linux
+#include <unistd.h>
+#include <dirent.h>
+#endif
+#ifdef WIN32
 #include <io.h>
+#endif
 using namespace std;
 /* 存储文件路径 */
 vector<string> files;
@@ -19,6 +25,8 @@ bool allType = false;
 /* 功能获取路径path下所有的文件路径（包括子文件夹里的），存储在files中 */
 void getFiles(string path, vector<string> &files)
 {
+
+#ifdef WIN32
     long hFile = 0;
     struct _finddata_t fileinfo;
     string p;
@@ -36,6 +44,34 @@ void getFiles(string path, vector<string> &files)
         } while (_findnext(hFile, &fileinfo) == 0);
         _findclose(hFile);
     }
+#endif
+
+#ifdef linux
+    DIR *dir;
+    struct dirent *ptr;
+    char base[1000];
+
+    if ((dir = opendir(cate_dir.c_str())) == NULL)
+    {
+        perror("Open dir error...");
+        exit(1);
+    }
+
+    while ((ptr = readdir(dir)) != NULL)
+    {
+        if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0)
+            continue;
+        else if (ptr->d_type == 8)
+            files.push_back(ptr->d_name);
+        else if (ptr->d_type == 10)
+            continue;
+        else if (ptr->d_type == 4)
+        {
+            files.push_back(ptr->d_name);
+        }
+    }
+    closedir(dir);
+#endif
 }
 
 /* 获取文件行数 */
