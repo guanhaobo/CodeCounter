@@ -94,7 +94,7 @@ int getLineNum(string path)
 /* 判断是否是目标扩展名 */
 bool isTarget(string path)
 {
-    if (type.size() == 0 || allType)
+    if (type.size() == 0)
         return true;
     string name = path.substr(path.find_last_of(".") + 1);
     transform(name.begin(), name.end(), name.begin(), ::tolower);
@@ -115,8 +115,11 @@ void run1(int argc, char **argv)
     int num, ans = 0;
     for (int i = 0; i < files.size(); i++)
     {
-        if (!allType && !isTarget(files[i]))
-            continue;
+        if (!allType)
+        {
+            if (!isTarget(files[i]))
+                continue;
+        }
         num = getLineNum(files[i]);
         ans += num;
         cout << files[i] << "\tLines:" << num << endl;
@@ -153,14 +156,17 @@ void run2(int argc, char **argv)
 /* 主函数 */
 int main(int argc, char **argv)
 {
+    for (int i = 0; i < argc; i++)
+        cout << argv[i] << endl;
+    return 0;
     if (argc < 3)
     {
         cout << "error" << endl;
         return -1;
     }
-    else if (strcmp(argv[argc - 1], "*") == 0)
+    else if (strcmp(argv[argc - 1], "-a") == 0)
         allType = true;
-    if (strcmp(argv[1], "-a") == 0) //只输出结果
+    if (strcmp(argv[1], "-s") == 0) //只输出结果
         run2(argc, argv);
     else
         run1(argc, argv);
