@@ -8,6 +8,7 @@
 #ifdef linux
 #include <unistd.h>
 #include <dirent.h>
+#include <sys/stat.h>
 #endif
 #ifdef WIN32
 #include <io.h>
@@ -25,9 +26,9 @@ bool allType = false;
 /* 功能获取路径path下所有的文件路径（包括子文件夹里的），存储在files中 */
 void getFiles(string path, vector<string> &files)
 {
-    string p;
 #ifdef WIN32
     long hFile = 0;
+    string p;
     struct _finddata_t fileinfo;
     if ((hFile = _findfirst(p.assign(path).append("\\*").c_str(), &fileinfo)) != -1)
     {
@@ -36,10 +37,10 @@ void getFiles(string path, vector<string> &files)
             if ((fileinfo.attrib & _A_SUBDIR))
             {
                 if (strcmp(fileinfo.name, ".") != 0 && strcmp(fileinfo.name, "..") != 0)
-                    getFiles(p.assign(path).append("\\").append(fileinfo.name), files);
+                    getFiles(path + "\\" + fileinfo.name, files);
             }
             else
-                files.push_back(p.assign(path).append("\\").append(fileinfo.name));
+                files.push_back(path + "\\" + fileinfo.name);
         } while (_findnext(hFile, &fileinfo) == 0);
         _findclose(hFile);
     }
@@ -48,27 +49,23 @@ void getFiles(string path, vector<string> &files)
 #ifdef linux
     DIR *dir;
     struct dirent *ptr;
-    char base[1000];
     if ((dir = opendir(path.c_str())) == NULL)
     {
-        perror("Open dir error...");
+        perror(("Open dir error...:" + path).c_str());
         exit(1);
     }
 
     while ((ptr = readdir(dir)) != NULL)
     {
+        string base = path + "/" + ptr->d_name;
+        struct stat st;
+        stat(base.c_str(), &st);
         if (strcmp(ptr->d_name, ".") == 0 || strcmp(ptr->d_name, "..") == 0) ///current dir OR parrent dir
             continue;
-        else if (ptr->d_type == 4) ///dir
-        {
-            memset(base, '\0', sizeof(base));
-            strcpy(base, path.c_str());
-            strcat(base, "/");
-            strcat(base, ptr->d_name);
+        else if (S_ISDIR(st.st_mode)) ///dir
             getFiles(base, files);
-        }
         else
-            files.push_back(p.assign(path).append("/").append(ptr->d_name));
+            files.push_back(base);
     }
     closedir(dir);
 #endif
