@@ -13,6 +13,9 @@ vector<string> files;
 /* 指定扩展名 */
 vector<string> type;
 
+/* 是否不限制扩展名 */
+bool allType = false;
+
 /* 功能获取路径path下所有的文件路径（包括子文件夹里的），存储在files中 */
 void getFiles(string path, vector<string> &files)
 {
@@ -64,14 +67,9 @@ bool isTarget(string path)
     return false;
 }
 
-/* 主函数 */
-int main(int argc, char **argv)
+/* 输出详细信息 */
+void run1(int argc, char **argv)
 {
-    if (argc < 3)
-    {
-        cout << "error" << endl;
-        return -1;
-    }
     string filePath = argv[1];
     //设置扩展名
     for (int i = 2; i < argc; i++)
@@ -81,15 +79,54 @@ int main(int argc, char **argv)
     int num, ans = 0;
     for (int i = 0; i < files.size(); i++)
     {
-        //如果是目标扩展名，则读取行数
-        if (isTarget(files[i]))
-        {
-            num = getLineNum(files[i]);
-            ans += num;
-            cout << files[i] << "\t行数：" << num << endl;
-        }
+        if (!allType && !isTarget(files[i]))
+            continue;
+        num = getLineNum(files[i]);
+        ans += num;
+        cout << files[i] << "\t行数：" << num << endl;
     }
     cout << endl
          << "总行数：" << ans << endl;
+}
+
+/* 只输出结果 */
+void run2(int argc, char **argv)
+{
+    if (argc < 4)
+    {
+        cout << "error" << endl;
+        return;
+    }
+    string filePath = argv[2];
+    //设置扩展名
+    for (int i = 3; i < argc; i++)
+        type.push_back(argv[i]);
+    //读取所有文件的路径
+    getFiles(filePath, files);
+    int num, ans = 0;
+    for (int i = 0; i < files.size(); i++)
+    {
+        if (!allType && !isTarget(files[i]))
+            continue;
+        num = getLineNum(files[i]);
+        ans += num;
+    }
+    cout << ans;
+}
+
+/* 主函数 */
+int main(int argc, char **argv)
+{
+    if (argc < 3)
+    {
+        cout << "error" << endl;
+        return -1;
+    }
+    else if (strcmp(argv[argc - 1], "*") == 0)
+        allType = true;
+    if (strcmp(argv[1], "-a") == 0) //只输出结果
+        run2(argc, argv);
+    else
+        run1(argc, argv);
     return 0;
 }
