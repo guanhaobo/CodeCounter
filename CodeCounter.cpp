@@ -51,7 +51,7 @@ void getFiles(string path, vector<string> &files)
     struct dirent *ptr;
     char base[1000];
 
-    if ((dir = opendir(cate_dir.c_str())) == NULL)
+    if ((dir = opendir(path.c_str())) == NULL)
     {
         perror("Open dir error...");
         exit(1);
